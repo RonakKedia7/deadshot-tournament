@@ -214,7 +214,7 @@ const renderPlayers = () => {
 };
 
 // API Configuration
-const API_URL = 'https://your-render-url.onrender.com/api'; // Replace with your actual Render.com URL
+const API_URL = 'https://deadshot-tournament.onrender.com/api'; // Your Render.com backend URL
 
 // Data Management Functions
 const initializeData = async () => {
