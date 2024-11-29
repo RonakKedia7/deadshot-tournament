@@ -1,18 +1,21 @@
 /* Variables */
 :root {
-    --primary-color: #4F46E5;
+    --primary-color: #6C63FF;
     --secondary-color: #2D3748;
-    --accent-color: #6366F1;
-    --background-color: #1A1A2E;
-    --card-background: #252538;
-    --text-light: #ffffff;
-    --text-gray: #A0AEC0;
-    --gold-color: #FFD700;
-    --silver-color: #C0C0C0;
-    --bronze-color: #CD7F32;
+    --accent-color: #845EF7;
+    --background-color: #0F172A;
+    --card-background: #1E293B;
+    --text-light: #F8FAFC;
+    --text-gray: #94A3B8;
+    --gold-color: #FCD34D;
+    --silver-color: #CBD5E1;
+    --bronze-color: #B45309;
     --success: #10B981;
     --danger: #EF4444;
     --warning: #F59E0B;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -57,32 +60,344 @@ body {
 
 /* Header Styles */
 header {
-    background: linear-gradient(145deg, var(--card-background), var(--accent-color));
-    padding: 30px 20px;
+    background: linear-gradient(135deg, var(--card-background), var(--accent-color));
+    padding: 2rem 1rem;
     text-align: center;
     position: relative;
     overflow: hidden;
     animation: fadeIn 0.8s ease-out;
+    box-shadow: var(--shadow-lg);
 }
 
-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+header .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+header .logo i {
+    font-size: 2.5rem;
+    color: var(--gold-color);
 }
 
 header h1 {
-    font-size: 3rem;
+    font-size: clamp(1.8rem, 5vw, 3rem);
     color: var(--text-light);
     text-transform: uppercase;
-    letter-spacing: 8px;
+    letter-spacing: 4px;
     margin: 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     font-weight: 700;
+}
+
+.tournament-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+/* Section Styles */
+section {
+    margin: 2rem auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    background-color: var(--card-background);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 1000px;
+    width: 100%;
+}
+
+section:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.section-header {
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-header h2 i {
+    color: var(--accent-color);
+}
+
+/* Prize Pool Styles */
+.prize-pool {
+    text-align: center;
+}
+
+.prizes {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 500px;
+    margin: 2rem auto;
+}
+
+.prize {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.prize::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+}
+
+.prize.gold {
+    background: linear-gradient(145deg, var(--card-background), rgba(255, 215, 0, 0.1));
+}
+
+.prize.gold::before {
+    background-color: var(--gold-color);
+}
+
+.prize.gold i {
+    color: var(--gold-color);
+}
+
+.prize.silver {
+    background: linear-gradient(145deg, var(--card-background), rgba(192, 192, 192, 0.1));
+}
+
+.prize.silver::before {
+    background-color: var(--silver-color);
+}
+
+.prize.silver i {
+    color: var(--silver-color);
+}
+
+.prize.bronze {
+    background: linear-gradient(145deg, var(--card-background), rgba(205, 127, 50, 0.1));
+}
+
+.prize.bronze::before {
+    background-color: var(--bronze-color);
+}
+
+.prize.bronze i {
+    color: var(--bronze-color);
+}
+
+.prize i {
+    font-size: 1.75rem;
+    width: 40px;
+    text-align: center;
+}
+
+.prize .place {
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: left;
+}
+
+.prize .amount {
+    font-weight: 700;
+    font-size: 1.25rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.prize:hover {
+    transform: translateY(-2px);
+}
+
+/* Table Styles */
+.table-container {
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    margin-top: 1.5rem;
+}
+
+.points-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.75rem;
+}
+
+.points-table th,
+.points-table td {
+    padding: 1rem;
+    text-align: center;
+}
+
+.points-table th {
+    background: var(--secondary-color);
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.points-table tbody tr {
+    background: rgba(255, 255, 255, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+.points-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Team Colors - Mobile & Desktop */
+.points-table tbody tr td:first-child {
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.points-table tbody tr td:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: var(--team-color, var(--accent-color));
+}
+
+/* Team Color Classes */
+.team-red td:first-child::before { 
+    --team-color: #FF6B6B;  /* Team Alpha - Coral Red */ 
+}
+.team-green td:first-child::before { 
+    --team-color: #00B894;  /* Team Beta - Mint Green */ 
+}
+.team-yellow td:first-child::before { 
+    --team-color: #FFD93D;  /* Team Gamma - Golden Yellow */ 
+}
+.team-purple td:first-child::before { 
+    --team-color: #6C5CE7;  /* Team Delta - Purple */ 
+}
+.team-blue td:first-child::before { 
+    --team-color: #45B7D1;  /* Team Epsilon - Sky Blue */ 
+}
+.team-pink td:first-child::before { 
+    --team-color: #E84393;  /* Team Zeta - Hot Pink */ 
+}
+
+/* Team row hover effects */
+.team-red:hover { background-color: rgba(255, 107, 107, 0.1) !important; }
+.team-green:hover { background-color: rgba(0, 184, 148, 0.1) !important; }
+.team-yellow:hover { background-color: rgba(255, 217, 61, 0.1) !important; }
+.team-purple:hover { background-color: rgba(108, 92, 231, 0.1) !important; }
+.team-blue:hover { background-color: rgba(69, 183, 209, 0.1) !important; }
+.team-pink:hover { background-color: rgba(232, 67, 147, 0.1) !important; }
+
+/* Modal Styles */
+.modal-content {
+    background: var(--card-background);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    max-width: 500px;
+    width: 90%;
+}
+
+.input-group {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.input-group input,
+.input-group select {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    width: 100%;
+    font-size: 1rem;
+    outline: none;
+}
+
+/* Button Styles */
+button {
+    background: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+button:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.danger-btn {
+    background: var(--danger);
+}
+
+.danger-btn:hover {
+    background: #DC2626;
+}
+
+/* Notification Styles */
+.notification {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    background: var(--card-background);
+    color: var(--text-light);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(150%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.notification.show {
+    transform: translateY(0);
 }
 
 /* Animations */
@@ -106,225 +421,6 @@ header h1 {
         transform: translateY(0);
         opacity: 1;
     }
-}
-
-/* Section Styles */
-section {
-    margin: 40px auto;
-    padding: 35px;
-    max-width: 1000px;
-    border-radius: 20px;
-    background-color: var(--card-background);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    transition: all 0.4s ease;
-    animation: fadeIn 0.6s ease-out;
-}
-
-section:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-}
-
-section h2 {
-    border-bottom: 3px solid var(--primary-color);
-    padding-bottom: 15px;
-    margin-bottom: 25px;
-    color: var(--primary-color);
-    font-size: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-weight: 600;
-}
-
-/* Prize Pool Styles */
-.prize-pool {
-    text-align: center;
-    padding: 40px;
-}
-
-.prizes {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.prize {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 20px;
-    border-radius: 12px;
-    background: linear-gradient(145deg, var(--card-background), var(--secondary-color));
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.prize:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-.prize i {
-    font-size: 2rem;
-    width: 50px;
-}
-
-.prize .place {
-    font-weight: 600;
-    font-size: 1.2rem;
-    flex: 1;
-    text-align: left;
-}
-
-.prize .amount {
-    font-weight: 700;
-    font-size: 1.4rem;
-    padding: 8px 16px;
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.prize.gold {
-    border-left: 4px solid var(--gold-color);
-}
-
-.prize.gold i {
-    color: var(--gold-color);
-}
-
-.prize.silver {
-    border-left: 4px solid var(--silver-color);
-}
-
-.prize.silver i {
-    color: var(--silver-color);
-}
-
-.prize.bronze {
-    border-left: 4px solid var(--bronze-color);
-}
-
-.prize.bronze i {
-    color: var(--bronze-color);
-}
-
-/* Guidelines Styles */
-.guidelines ul {
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.guidelines li {
-    padding: 20px 20px 20px 50px;
-    background: linear-gradient(145deg, var(--card-background), var(--secondary-color));
-    border-radius: 12px;
-    color: var(--text-light);
-    text-align: left;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    font-size: 1.1rem;
-    position: relative;
-    animation: fadeIn 0.5s ease-out;
-}
-
-.guidelines li i {
-    position: absolute;
-    left: 20px;
-    color: var(--accent-color);
-    transition: transform 0.3s ease;
-}
-
-.guidelines li:hover i {
-    transform: scale(1.2);
-}
-
-/* Table Styles */
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 12px;
-    text-align: center;
-    margin-top: 30px;
-}
-
-table th, table td {
-    padding: 20px;
-}
-
-table th {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 1.1rem;
-}
-
-table th:first-child {
-    border-radius: 10px 0 0 10px;
-}
-
-table th:last-child {
-    border-radius: 0 10px 10px 0;
-}
-
-table tbody tr {
-    background-color: rgba(108, 99, 255, 0.1);
-    transition: all 0.3s ease;
-    animation: fadeIn 0.5s ease-out;
-}
-
-table tbody tr:hover {
-    transform: scale(1.02);
-    background-color: rgba(108, 99, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-table tbody td:first-child {
-    border-radius: 10px 0 0 10px;
-}
-
-table tbody td:last-child {
-    border-radius: 0 10px 10px 0;
-}
-
-.points-table td {
-    padding: 12px 15px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.points-table tr:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.points-cell {
-    font-weight: 600;
-    color: var(--accent);
-    background: linear-gradient(145deg, rgba(79, 70, 229, 0.1), transparent);
-    border-radius: 4px;
-}
-
-.points-table tr:nth-child(1) .points-cell {
-    color: var(--gold);
-    background: linear-gradient(145deg, rgba(255, 215, 0, 0.1), transparent);
-}
-
-.points-table tr:nth-child(2) .points-cell {
-    color: var(--silver);
-    background: linear-gradient(145deg, rgba(192, 192, 192, 0.1), transparent);
-}
-
-.points-table tr:nth-child(3) .points-cell {
-    color: var(--bronze);
-    background: linear-gradient(145deg, rgba(205, 127, 50, 0.1), transparent);
 }
 
 /* Fixtures List Styles */

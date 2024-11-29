@@ -95,6 +95,30 @@ const generateFixtures = () => {
     return fixtures;
 };
 
+const getTeamColorClass = (color, name) => {
+    // Map hex colors to CSS class names
+    const colorMap = {
+        '#FF6B6B': 'red',     // Team Alpha (Coral Red)
+        '#00B894': 'green',   // Team Beta (Mint Green)
+        '#FFD93D': 'yellow',  // Team Gamma (Golden Yellow)
+        '#6C5CE7': 'purple',  // Team Delta (Purple)
+        '#45B7D1': 'blue',    // Team Epsilon (Sky Blue)
+        '#E84393': 'pink',    // Team Zeta (Hot Pink)
+    };
+
+    // Map team names directly if color mapping fails
+    const teamNameMap = {
+        'Team Alpha': 'red',
+        'Team Beta': 'green',
+        'Team Gamma': 'yellow',
+        'Team Delta': 'purple',
+        'Team Epsilon': 'blue',
+        'Team Zeta': 'pink'
+    };
+
+    return colorMap[color] || teamNameMap[name] || 'blue';
+};
+
 const renderPointsTable = () => {
     const tableBody = document.getElementById("points-table-body");
     tableBody.innerHTML = '';
@@ -103,7 +127,8 @@ const renderPointsTable = () => {
     const sortedTeams = teams.map(team => ({
         name: team.name,
         ...pointsTable[team.name],
-        color: team.color
+        color: team.color,
+        colorClass: getTeamColorClass(team.color, team.name)
     })).sort((a, b) => {
         // Sort by points first
         if (b.points !== a.points) {
@@ -118,38 +143,49 @@ const renderPointsTable = () => {
     });
 
     sortedTeams.forEach(team => {
-        const row = `
-            <tr>
-                <td style="color: ${team.color}">${team.name}</td>
-                <td>${team.matchesPlayed}</td>
-                <td>${team.wins}</td>
-                <td>${team.losses}</td>
-                <td class="points-cell">${team.points}</td>
-            </tr>
+        const row = document.createElement('tr');
+        row.className = `team-${team.colorClass}`;
+        
+        row.innerHTML = `
+            <td>${team.name}</td>
+            <td>${team.matchesPlayed || 0}</td>
+            <td>${team.wins || 0}</td>
+            <td>${team.losses || 0}</td>
+            <td class="points-cell">${team.points || 0}</td>
         `;
-        tableBody.innerHTML += row;
+        
+        tableBody.appendChild(row);
     });
 };
 
 const renderPrizePool = () => {
-    const prizesList = document.querySelector('.prizes');
-    prizesList.innerHTML = `
-        <div class="prize gold">
-            <i class="fas fa-trophy"></i>
-            <span class="place">${PRIZE_POOL.first.label}</span>
-            <span class="amount">${formatCurrency(PRIZE_POOL.first.amount, PRIZE_POOL.first.currency)}</span>
-        </div>
-        <div class="prize silver">
-            <i class="fas fa-medal"></i>
-            <span class="place">${PRIZE_POOL.second.label}</span>
-            <span class="amount">${formatCurrency(PRIZE_POOL.second.amount, PRIZE_POOL.second.currency)}</span>
-        </div>
-        <div class="prize bronze">
-            <i class="fas fa-award"></i>
-            <span class="place">${PRIZE_POOL.third.label}</span>
-            <span class="amount">${formatCurrency(PRIZE_POOL.third.amount, PRIZE_POOL.third.currency)}</span>
-        </div>
-    `;
+    const prizesContainer = document.querySelector('.prizes');
+    prizesContainer.innerHTML = '';
+
+    const prizeClasses = {
+        first: 'gold',
+        second: 'silver',
+        third: 'bronze'
+    };
+
+    const prizeIcons = {
+        first: 'trophy',
+        second: 'medal',
+        third: 'award'
+    };
+
+    Object.entries(PRIZE_POOL).forEach(([key, prize]) => {
+        const prizeElement = document.createElement('div');
+        prizeElement.className = `prize ${prizeClasses[key]}`;
+        
+        prizeElement.innerHTML = `
+            <i class="fas fa-${prizeIcons[key]}"></i>
+            <span class="place">${prize.label}</span>
+            <span class="amount">${formatCurrency(prize.amount, prize.currency)}</span>
+        `;
+        
+        prizesContainer.appendChild(prizeElement);
+    });
 };
 
 const renderFixtures = () => {
