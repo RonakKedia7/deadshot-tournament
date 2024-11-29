@@ -67,6 +67,7 @@ teams.forEach(team => {
         wins: 0,
         losses: 0,
         points: 0,
+        kills: 0,
         color: team.color
     };
 });
@@ -255,7 +256,18 @@ const API_URL = 'https://deadshot-tournament.onrender.com/api'; // Your Render.c
 // Data Management Functions
 const initializeData = async () => {
     try {
-        const response = await fetch(`${API_URL}/tournament`);
+        const response = await fetch(`${API_URL}/tournament`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch tournament data');
+        }
+
         const data = await response.json();
         
         if (data.pointsTable) {
@@ -264,33 +276,62 @@ const initializeData = async () => {
         if (data.completedMatches) {
             completedMatches = data.completedMatches;
         }
-        
-        renderPointsTable();
-        renderFixtures();
     } catch (error) {
         console.error('Error loading tournament data:', error);
+        // Use localStorage as fallback
+        const savedData = localStorage.getItem('tournamentData');
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                if (data.pointsTable) {
+                    Object.assign(pointsTable, data.pointsTable);
+                }
+                if (data.completedMatches) {
+                    completedMatches = data.completedMatches;
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+            }
+        }
     }
+    
+    // Always render UI components
+    renderPointsTable();
+    renderFixtures();
 };
 
 const saveData = async () => {
+    const data = {
+        pointsTable,
+        completedMatches
+    };
+
     try {
+        // Save to API
         const response = await fetch(`${API_URL}/tournament/update`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                pointsTable,
-                completedMatches
-            })
+            body: JSON.stringify(data)
         });
         
         if (!response.ok) {
             throw new Error('Failed to save tournament data');
         }
+
+        // Also save to localStorage as backup
+        localStorage.setItem('tournamentData', JSON.stringify(data));
     } catch (error) {
-        console.error('Error saving tournament data:', error);
-        alert('Failed to save changes. Please try again.');
+        console.error('Error saving to API:', error);
+        // Save to localStorage as fallback
+        try {
+            localStorage.setItem('tournamentData', JSON.stringify(data));
+        } catch (e) {
+            console.error('Error saving to localStorage:', e);
+            showNotification('Failed to save changes. Please try again.', 'error');
+        }
     }
 };
 
