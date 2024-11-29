@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deadshot Tournament</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-gamepad"></i>
+            <h1>Deadshot Tournament</h1>
+        </div>
+        <div class="tournament-stats">
+            <div class="stat">
+                <i class="fas fa-trophy"></i>
+                <span id="totalMatches">0 Matches</span>
+            </div>
+            <div class="stat">
+                <i class="fas fa-users"></i>
+                <span id="totalPlayers">0 Players</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-grid">
+            <section class="prize-pool">
+                <h2><i class="fas fa-coins"></i> Prize Pool</h2>
+                <div class="prizes">
+                    <!-- Prize pool will be generated dynamically -->
+                </div>
+            </section>
+
+            <section class="points-table-section">
+                <h2><i class="fas fa-table"></i> Points Table</h2>
+                <div class="table-container">
+                    <table class="points-table">
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>MP</th>
+                                <th>W</th>
+                                <th>L</th>
+                                <th>PTS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="points-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <section id="fixtures-section">
+            <div class="section-header">
+                <h2><i class="fas fa-gamepad"></i> Tournament Fixtures</h2>
+                <div class="admin-controls">
+                    <button id="adminLoginBtn" class="admin-btn">
+                        <i class="fas fa-lock"></i> Admin Login
+                    </button>
+                </div>
+            </div>
+            <div class="fixtures-container">
+                <ul id="fixtures-list">
+                    <!-- Fixtures will be generated dynamically -->
+                </ul>
+            </div>
+        </section>
+
+        <section id="players-section">
+            <div class="section-header">
+                <h2><i class="fas fa-users"></i> Teams & Players</h2>
+            </div>
+            <div id="players-list" class="players-grid">
+                <!-- Players will be generated dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3><i class="fas fa-lock"></i> Admin Login</h3>
+            <div class="admin-login">
+                <div class="input-group">
+                    <i class="fas fa-key"></i>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password">
+                </div>
+                <button id="loginSubmit">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Match Modal -->
+    <div id="updateMatchModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3><i class="fas fa-edit"></i> Update Match Result</h3>
+            <div class="match-update">
+                <div class="input-group">
+                    <i class="fas fa-gamepad"></i>
+                    <select id="matchSelect">
+                        <option value="">Select Match</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-trophy"></i>
+                    <select id="winnerSelect">
+                        <option value="">Select Winner</option>
+                    </select>
+                </div>
+                <button id="updateMatch">
+                    <i class="fas fa-save"></i> Update Result
+                </button>
+                <button id="resetTournament" class="danger-btn">
+                    <i class="fas fa-undo"></i> Reset Tournament
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <!-- Notifications will appear here -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
