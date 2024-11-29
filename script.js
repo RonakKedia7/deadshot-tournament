@@ -214,7 +214,7 @@ const renderPlayers = () => {
 };
 
 // API Configuration
-const API_URL = 'https://deadshot-tournament.onrender.com/api'; // Replace with your Render.com backend URL
+const API_URL = 'https://your-render-url.onrender.com/api'; // Replace with your actual Render.com URL
 
 // Data Management Functions
 const initializeData = async () => {
@@ -259,7 +259,7 @@ const saveData = async () => {
 };
 
 // Admin Configuration
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_PASSWORD = "ronakkedia7";
 let isAdminLoggedIn = false;
 
 // Admin Modal Handling

@@ -84,6 +84,7 @@ app.post('/api/tournament/reset', async (req, res) => {
 
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://your-mongodb-uri';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ronakkedia7';
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
