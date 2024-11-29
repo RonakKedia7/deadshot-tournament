@@ -27,10 +27,30 @@
     </header>
 
     <main class="container">
-        <section class="prize-pool">
-            <h2><i class="fas fa-coins"></i> Prize Pool</h2>
-            <div class="prizes">
-                <!-- Prize pool will be generated dynamically -->
+        <section id="players-section">
+            <div class="section-header">
+                <h2><i class="fas fa-users"></i> Teams & Players</h2>
+            </div>
+            <div id="players-list" class="players-grid">
+                <!-- Players will be generated dynamically -->
+            </div>
+        </section>
+
+        <section class="guidelines">
+            <h2><i class="fas fa-list"></i> Guidelines</h2>
+            <div class="guidelines-content">
+                <div class="guideline-item">
+                    <span class="guideline-label">Win</span>
+                    <span class="guideline-points">5 points</span>
+                </div>
+                <div class="guideline-item">
+                    <span class="guideline-label">Draw</span>
+                    <span class="guideline-points">2 points</span>
+                </div>
+                <div class="guideline-item">
+                    <span class="guideline-label">Entry Fees</span>
+                    <span class="guideline-points">₹50 per player</span>
+                </div>
             </div>
         </section>
 
@@ -43,6 +63,7 @@
                             <th>Team</th>
                             <th>MP</th>
                             <th>W</th>
+                            <th>D</th>
                             <th>L</th>
                             <th>PTS</th>
                         </tr>
@@ -53,12 +74,19 @@
             </div>
         </section>
 
+        <section class="prize-pool">
+            <h2><i class="fas fa-coins"></i> Prize Pool</h2>
+            <div class="prizes">
+                <!-- Prize pool will be generated dynamically -->
+            </div>
+        </section>
+
         <section id="fixtures-section">
             <div class="section-header">
                 <h2><i class="fas fa-gamepad"></i> Tournament Fixtures</h2>
                 <div class="admin-controls">
                     <button id="adminLoginBtn" class="admin-btn">
-                        <i class="fas fa-lock"></i> Admin Login
+                        <i class="fas fa-gamepad"></i> Update Game
                     </button>
                 </div>
             </div>
@@ -66,15 +94,6 @@
                 <ul id="fixtures-list">
                     <!-- Fixtures will be generated dynamically -->
                 </ul>
-            </div>
-        </section>
-
-        <section id="players-section">
-            <div class="section-header">
-                <h2><i class="fas fa-users"></i> Teams & Players</h2>
-            </div>
-            <div id="players-list" class="players-grid">
-                <!-- Players will be generated dynamically -->
             </div>
         </section>
     </main>
@@ -86,7 +105,6 @@
             <h3><i class="fas fa-lock"></i> Admin Login</h3>
             <div class="admin-login">
                 <div class="input-group">
-                    <i class="fas fa-key"></i>
                     <input type="password" id="adminPassword" placeholder="Enter admin password">
                 </div>
                 <button id="loginSubmit">
@@ -103,13 +121,11 @@
             <h3><i class="fas fa-edit"></i> Update Match Result</h3>
             <div class="match-update">
                 <div class="input-group">
-                    <i class="fas fa-gamepad"></i>
                     <select id="matchSelect">
                         <option value="">Select Match</option>
                     </select>
                 </div>
                 <div class="input-group">
-                    <i class="fas fa-trophy"></i>
                     <select id="winnerSelect">
                         <option value="">Select Winner</option>
                     </select>

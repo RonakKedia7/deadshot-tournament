@@ -65,6 +65,7 @@ teams.forEach(team => {
     pointsTable[team.name] = {
         matchesPlayed: 0,
         wins: 0,
+        draws: 0,
         losses: 0,
         points: 0,
         kills: 0,
@@ -151,6 +152,7 @@ const renderPointsTable = () => {
             <td>${team.name}</td>
             <td>${team.matchesPlayed || 0}</td>
             <td>${team.wins || 0}</td>
+            <td>${team.draws || 0}</td>
             <td>${team.losses || 0}</td>
             <td class="points-cell">${team.points || 0}</td>
         `;
@@ -197,6 +199,30 @@ const renderFixtures = () => {
         const team2Data = teams.find(t => t.name === match.team2);
         const isCompleted = completedMatches.includes(index);
         
+        // Get match result for completed matches
+        let matchResult = null;
+        if (isCompleted) {
+            const team1Stats = pointsTable[match.team1];
+            const team2Stats = pointsTable[match.team2];
+            
+            if (team1Stats.draws > team2Stats.draws) {
+                matchResult = 'draw';
+            } else {
+                // Compare wins to determine the winner
+                const team1Wins = team1Stats.wins;
+                const team2Wins = team2Stats.wins;
+                
+                if (team1Wins > team2Wins) {
+                    matchResult = match.team1;
+                } else if (team2Wins > team1Wins) {
+                    matchResult = match.team2;
+                } else {
+                    // If wins are equal, it must be a draw
+                    matchResult = 'draw';
+                }
+            }
+        }
+        
         const listItem = `
             <li class="fixture-card ${isCompleted ? 'completed' : ''}" ${isCompleted ? 'style="position: relative;"' : ''}>
                 <div class="fixture-header">
@@ -205,16 +231,42 @@ const renderFixtures = () => {
                 </div>
                 <div class="teams">
                     <div class="team team1" style="background: linear-gradient(145deg, ${team1Data.color}11, ${team1Data.color}22); border-left: 3px solid ${team1Data.color}">
-                        <i class="fas fa-user-friends" style="color: ${team1Data.color}"></i>
-                        <span style="color: ${team1Data.color}">${match.team1}</span>
+                        <div class="team-container">
+                            <div class="team-info">
+                                <i class="fas fa-user-friends" style="color: ${team1Data.color}"></i>
+                                <span style="color: ${team1Data.color}">${match.team1}</span>
+                            </div>
+                            ${isCompleted ? `
+                                <span class="team-status ${
+                                    matchResult === match.team1 ? 'status-won' : 
+                                    matchResult === 'draw' ? 'status-draw' : 'status-lost'
+                                }">
+                                    ${matchResult === match.team1 ? 'Won' : 
+                                      matchResult === 'draw' ? 'Draw' : 'Lost'}
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
                     <div class="vs">
                         <i class="fas fa-bolt"></i>
                         <span>VS</span>
                     </div>
                     <div class="team team2" style="background: linear-gradient(145deg, ${team2Data.color}11, ${team2Data.color}22); border-left: 3px solid ${team2Data.color}">
-                        <i class="fas fa-user-friends" style="color: ${team2Data.color}"></i>
-                        <span style="color: ${team2Data.color}">${match.team2}</span>
+                        <div class="team-container">
+                            <div class="team-info">
+                                <i class="fas fa-user-friends" style="color: ${team2Data.color}"></i>
+                                <span style="color: ${team2Data.color}">${match.team2}</span>
+                            </div>
+                            ${isCompleted ? `
+                                <span class="team-status ${
+                                    matchResult === match.team2 ? 'status-won' : 
+                                    matchResult === 'draw' ? 'status-draw' : 'status-lost'
+                                }">
+                                    ${matchResult === match.team2 ? 'Won' : 
+                                      matchResult === 'draw' ? 'Draw' : 'Lost'}
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
                 <div class="fixture-footer">
@@ -337,7 +389,7 @@ const saveData = async () => {
 
 // Admin Configuration
 const ADMIN_PASSWORD = "ronakkedia7";
-let isAdminLoggedIn = false;
+let isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
 
 // Admin Modal Handling
 const adminModal = document.getElementById('adminModal');
@@ -352,6 +404,15 @@ let completedMatches = [];
 // Close modal when clicking on X or outside
 document.querySelectorAll('.close').forEach(closeBtn => {
     closeBtn.onclick = function() {
+        if (this.closest('#updateMatchModal')) {
+            const shouldLogout = confirm('Do you want to exit update mode?');
+            if (shouldLogout) {
+                isAdminLoggedIn = false;
+                localStorage.removeItem('isAdminLoggedIn');
+                document.getElementById('resetTournament').style.display = "none";
+                adminLoginBtn.innerHTML = '<i class="fas fa-gamepad"></i> Update Game';
+            }
+        }
         adminModal.style.display = "none";
         updateMatchModal.style.display = "none";
     }
@@ -359,6 +420,15 @@ document.querySelectorAll('.close').forEach(closeBtn => {
 
 window.onclick = function(event) {
     if (event.target === adminModal || event.target === updateMatchModal) {
+        if (event.target === updateMatchModal) {
+            const shouldLogout = confirm('Do you want to exit update mode?');
+            if (shouldLogout) {
+                isAdminLoggedIn = false;
+                localStorage.removeItem('isAdminLoggedIn');
+                document.getElementById('resetTournament').style.display = "none";
+                adminLoginBtn.innerHTML = '<i class="fas fa-gamepad"></i> Update Game';
+            }
+        }
         adminModal.style.display = "none";
         updateMatchModal.style.display = "none";
     }
@@ -366,7 +436,12 @@ window.onclick = function(event) {
 
 // Admin Login Button Click
 adminLoginBtn.onclick = () => {
-    adminModal.style.display = "block";
+    if (isAdminLoggedIn) {
+        updateMatchModal.style.display = "block";
+        populateMatchSelect();
+    } else {
+        adminModal.style.display = "block";
+    }
 };
 
 // Login Submit
@@ -374,11 +449,12 @@ loginSubmit.onclick = () => {
     const password = document.getElementById('adminPassword').value;
     if (password === ADMIN_PASSWORD) {
         isAdminLoggedIn = true;
+        localStorage.setItem('isAdminLoggedIn', 'true');
         adminModal.style.display = "none";
         updateMatchModal.style.display = "block";
-        document.getElementById('resetTournament').style.display = isAdminLoggedIn ? "block" : "none";
-        // Clear password field
+        document.getElementById('resetTournament').style.display = "block";
         document.getElementById('adminPassword').value = '';
+        adminLoginBtn.innerHTML = '<i class="fas fa-gamepad"></i> Update Game';
         populateMatchSelect();
     } else {
         alert('Incorrect password!');
@@ -407,6 +483,7 @@ matchSelect.onchange = () => {
             <option value="">Select Winner</option>
             <option value="${match.team1}">${match.team1}</option>
             <option value="${match.team2}">${match.team2}</option>
+            <option value="draw">Draw</option>
         `;
     } else {
         winnerSelect.innerHTML = '<option value="">Select Winner</option>';
@@ -420,14 +497,26 @@ updateMatchBtn.onclick = () => {
 
     if (matchIndex >= 0 && winner) {
         const match = generateFixtures()[matchIndex];
-        const loser = winner === match.team1 ? match.team2 : match.team1;
 
-        // Update points
-        pointsTable[winner].matchesPlayed++;
-        pointsTable[winner].wins++;
-        pointsTable[winner].points += 2;
-        pointsTable[loser].matchesPlayed++;
-        pointsTable[loser].losses++;
+        if (winner === 'draw') {
+            // Handle draw
+            pointsTable[match.team1].matchesPlayed++;
+            pointsTable[match.team2].matchesPlayed++;
+            pointsTable[match.team1].draws++;
+            pointsTable[match.team2].draws++;
+            pointsTable[match.team1].points += 2; // 2 points for draw
+            pointsTable[match.team2].points += 2; // 2 points for draw
+        } else {
+            // Handle win/loss
+            const loser = winner === match.team1 ? match.team2 : match.team1;
+            
+            // Update points
+            pointsTable[winner].matchesPlayed++;
+            pointsTable[winner].wins++;
+            pointsTable[winner].points += 5; // 5 points for win
+            pointsTable[loser].matchesPlayed++;
+            pointsTable[loser].losses++;
+        }
 
         // Mark match as completed
         completedMatches.push(matchIndex);
@@ -473,6 +562,7 @@ const resetTournament = async () => {
                 pointsTable[team.name] = {
                     matchesPlayed: 0,
                     wins: 0,
+                    draws: 0,
                     losses: 0,
                     points: 0,
                     color: team.color
@@ -509,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPlayers();
 
     // Hide reset tournament button initially
-    document.getElementById('resetTournament').style.display = "none";
+    document.getElementById('resetTournament').style.display = isAdminLoggedIn ? "block" : "none";
     
     // Add event listener for reset tournament button
     document.getElementById('resetTournament').addEventListener('click', resetTournament);
