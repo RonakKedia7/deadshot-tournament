@@ -32,6 +32,7 @@ const tournamentSchema = new mongoose.Schema({
             wins: Number,
             losses: Number,
             points: Number,
+            kills: Number,
             color: String
         },
         required: true

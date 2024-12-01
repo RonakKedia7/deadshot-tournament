@@ -60,6 +60,7 @@ const teams = [
     }
 ];
 
+// Initialize points table with default values
 const pointsTable = {};
 teams.forEach(team => {
     pointsTable[team.name] = {
@@ -67,8 +68,8 @@ teams.forEach(team => {
         wins: 0,
         draws: 0,
         losses: 0,
-        points: 0,
         kills: 0,
+        points: 0,
         color: team.color
     };
 });
@@ -121,45 +122,41 @@ const getTeamColorClass = (color, name) => {
     return colorMap[color] || teamNameMap[name] || 'blue';
 };
 
-const renderPointsTable = () => {
-    const tableBody = document.getElementById("points-table-body");
-    tableBody.innerHTML = '';
+// Function to render points table
+function renderPointsTable() {
+    const pointsTableBody = document.getElementById("points-table-body");
+    pointsTableBody.innerHTML = "";
 
-    // Convert points table to array and sort by points
-    const sortedTeams = teams.map(team => ({
-        name: team.name,
-        ...pointsTable[team.name],
-        color: team.color,
-        colorClass: getTeamColorClass(team.color, team.name)
-    })).sort((a, b) => {
-        // Sort by points first
-        if (b.points !== a.points) {
-            return b.points - a.points;
+    const sortedTeams = Object.entries(pointsTable).sort((a, b) => {
+        const teamA = a[1];
+        const teamB = b[1];
+        if (teamB.points !== teamA.points) {
+            return teamB.points - teamA.points;
         }
-        // If points are equal, sort by wins
-        if (b.wins !== a.wins) {
-            return b.wins - a.wins;
+        if (teamB.kills !== teamA.kills) {
+            return teamB.kills - teamA.kills;
         }
-        // If wins are equal, sort alphabetically
-        return a.name.localeCompare(b.name);
+        return a[0].localeCompare(b[0]);
     });
 
-    sortedTeams.forEach(team => {
+    sortedTeams.forEach(([teamName, stats]) => {
         const row = document.createElement('tr');
-        row.className = `team-${team.colorClass}`;
+        const teamData = teams.find(t => t.name === teamName);
+        row.className = `team-${getTeamColorClass(teamData.color, teamName)}`;
         
         row.innerHTML = `
-            <td>${team.name}</td>
-            <td>${team.matchesPlayed || 0}</td>
-            <td>${team.wins || 0}</td>
-            <td>${team.draws || 0}</td>
-            <td>${team.losses || 0}</td>
-            <td class="points-cell">${team.points || 0}</td>
+            <td>${teamName}</td>
+            <td>${stats.matchesPlayed || 0}</td>
+            <td>${stats.wins || 0}</td>
+            <td>${stats.draws || 0}</td>
+            <td>${stats.losses || 0}</td>
+            <td>${stats.kills || 0}</td>
+            <td class="points-cell">${stats.points || 0}</td>
         `;
         
-        tableBody.appendChild(row);
+        pointsTableBody.appendChild(row);
     });
-};
+}
 
 const renderPrizePool = () => {
     const prizesContainer = document.querySelector('.prizes');
@@ -306,84 +303,99 @@ const renderPlayers = () => {
 const API_URL = 'https://deadshot-tournament.onrender.com/api'; // Your Render.com backend URL
 
 // Data Management Functions
-const initializeData = async () => {
+async function saveData() {
     try {
-        const response = await fetch(`${API_URL}/tournament`, {
-            method: 'GET',
+        const response = await fetch(`${API_URL}/tournament/update`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+                pointsTable,
+                completedMatches
+            })
         });
-        
+
+        if (!response.ok) {
+            throw new Error('Failed to save tournament data');
+        }
+    } catch (error) {
+        console.error('Error saving tournament data:', error);
+        alert('Failed to save tournament data. Please try again.');
+    }
+}
+
+async function initializeData() {
+    try {
+        const response = await fetch(`${API_URL}/tournament`);
         if (!response.ok) {
             throw new Error('Failed to fetch tournament data');
         }
 
         const data = await response.json();
         
-        if (data.pointsTable) {
-            Object.assign(pointsTable, data.pointsTable);
+        // Initialize points table with default values if empty
+        if (Object.keys(data.pointsTable || {}).length === 0) {
+            teams.forEach(team => {
+                pointsTable[team.name] = {
+                    matchesPlayed: 0,
+                    wins: 0,
+                    draws: 0,
+                    losses: 0,
+                    kills: 0,
+                    points: 0,
+                    color: team.color
+                };
+            });
+        } else {
+            // Make sure all teams have all required properties
+            Object.entries(data.pointsTable).forEach(([teamName, stats]) => {
+                pointsTable[teamName] = {
+                    matchesPlayed: stats.matchesPlayed || 0,
+                    wins: stats.wins || 0,
+                    draws: stats.draws || 0,
+                    losses: stats.losses || 0,
+                    kills: stats.kills || 0,
+                    points: stats.points || 0,
+                    color: stats.color || teams.find(t => t.name === teamName).color
+                };
+            });
         }
-        if (data.completedMatches) {
-            completedMatches = data.completedMatches;
-        }
-    } catch (error) {
-        console.error('Error loading tournament data:', error);
-        // Use localStorage as fallback
-        const savedData = localStorage.getItem('tournamentData');
-        if (savedData) {
-            try {
-                const data = JSON.parse(savedData);
-                if (data.pointsTable) {
-                    Object.assign(pointsTable, data.pointsTable);
-                }
-                if (data.completedMatches) {
-                    completedMatches = data.completedMatches;
-                }
-            } catch (e) {
-                console.error('Error loading from localStorage:', e);
-            }
-        }
-    }
-    
-    // Always render UI components
-    renderPointsTable();
-    renderFixtures();
-};
 
-const saveData = async () => {
-    const data = {
-        pointsTable,
-        completedMatches
-    };
-
-    try {
-        // Save to API
-        const response = await fetch(`${API_URL}/tournament/update`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+        completedMatches = data.completedMatches || [];
         
-        if (!response.ok) {
-            throw new Error('Failed to save tournament data');
-        }
-
-        // Also save to localStorage as backup
-        localStorage.setItem('tournamentData', JSON.stringify(data));
+        renderPointsTable();
+        renderFixtures();
     } catch (error) {
-        console.error('Error saving to API:', error);
-        // Save to localStorage as fallback
-        try {
-            localStorage.setItem('tournamentData', JSON.stringify(data));
-        } catch (e) {
-            console.error('Error saving to localStorage:', e);
-            showNotification('Failed to save changes. Please try again.', 'error');
-        }
+        console.error('Error initializing tournament data:', error);
+    }
+}
+
+// Reset tournament function
+function resetTournament() {
+    if (confirm("Are you sure you want to reset the tournament? This action cannot be undone.")) {
+        // Reset points table with proper initialization
+        teams.forEach(team => {
+            pointsTable[team.name] = {
+                matchesPlayed: 0,
+                wins: 0,
+                draws: 0,
+                losses: 0,
+                kills: 0,
+                points: 0,
+                color: team.color
+            };
+        });
+
+        // Reset completed matches
+        completedMatches = [];
+
+        // Save the reset data
+        saveData();
+
+        // Update UI
+        renderPointsTable();
+        renderFixtures();
     }
 };
 
@@ -399,6 +411,8 @@ const loginSubmit = document.getElementById('loginSubmit');
 const matchSelect = document.getElementById('matchSelect');
 const winnerSelect = document.getElementById('winnerSelect');
 const updateMatchBtn = document.getElementById('updateMatch');
+const team1KillsInput = document.getElementById('team1-kills');
+const team2KillsInput = document.getElementById('team2-kills');
 let completedMatches = [];
 
 // Close modal when clicking on X or outside
@@ -476,115 +490,84 @@ const populateMatchSelect = () => {
 
 // Update Winner Select based on Match Selection
 matchSelect.onchange = () => {
-    const matchIndex = parseInt(matchSelect.value);
-    if (matchIndex >= 0) {
-        const match = generateFixtures()[matchIndex];
+    const selectedMatch = generateFixtures()[parseInt(matchSelect.value)];
+    if (selectedMatch) {
         winnerSelect.innerHTML = `
             <option value="">Select Winner</option>
-            <option value="${match.team1}">${match.team1}</option>
-            <option value="${match.team2}">${match.team2}</option>
+            <option value="${selectedMatch.team1}">${selectedMatch.team1}</option>
+            <option value="${selectedMatch.team2}">${selectedMatch.team2}</option>
             <option value="draw">Draw</option>
         `;
+        
+        // Update kill input labels with team names
+        document.getElementById('team1-label').textContent = `${selectedMatch.team1} Kills:`;
+        document.getElementById('team2-label').textContent = `${selectedMatch.team2} Kills:`;
+        
+        document.getElementById('team1-kills').placeholder = `Enter ${selectedMatch.team1} kills`;
+        document.getElementById('team2-kills').placeholder = `Enter ${selectedMatch.team2} kills`;
     } else {
         winnerSelect.innerHTML = '<option value="">Select Winner</option>';
+        document.getElementById('team1-label').textContent = 'Team Kills:';
+        document.getElementById('team2-label').textContent = 'Team Kills:';
+        document.getElementById('team1-kills').placeholder = '';
+        document.getElementById('team2-kills').placeholder = '';
     }
 };
 
-// Update Match Result
+// Update match result handler
 updateMatchBtn.onclick = () => {
     const matchIndex = parseInt(matchSelect.value);
     const winner = winnerSelect.value;
+    const team1Kills = parseInt(team1KillsInput.value) || 0;
+    const team2Kills = parseInt(team2KillsInput.value) || 0;
 
     if (matchIndex >= 0 && winner) {
         const match = generateFixtures()[matchIndex];
 
+        // Update match statistics
+        pointsTable[match.team1].matchesPlayed++;
+        pointsTable[match.team2].matchesPlayed++;
+
         if (winner === 'draw') {
-            // Handle draw
-            pointsTable[match.team1].matchesPlayed++;
-            pointsTable[match.team2].matchesPlayed++;
+            // Handle draw - 2 points each
             pointsTable[match.team1].draws++;
             pointsTable[match.team2].draws++;
-            pointsTable[match.team1].points += 2; // 2 points for draw
-            pointsTable[match.team2].points += 2; // 2 points for draw
+            pointsTable[match.team1].points += 2;
+            pointsTable[match.team2].points += 2;
         } else {
-            // Handle win/loss
+            // Handle win/loss - 5 points for win
             const loser = winner === match.team1 ? match.team2 : match.team1;
-            
-            // Update points
-            pointsTable[winner].matchesPlayed++;
             pointsTable[winner].wins++;
-            pointsTable[winner].points += 5; // 5 points for win
-            pointsTable[loser].matchesPlayed++;
+            pointsTable[winner].points += 5;
             pointsTable[loser].losses++;
         }
+
+        // Add kill points
+        pointsTable[match.team1].kills += team1Kills;
+        pointsTable[match.team1].points += team1Kills;
+        pointsTable[match.team2].kills += team2Kills;
+        pointsTable[match.team2].points += team2Kills;
 
         // Mark match as completed
         completedMatches.push(matchIndex);
 
-        // Save to API
-        saveData();
-
         // Update UI
+        saveData();
         renderPointsTable();
         renderFixtures();
-        
-        // Reset and close modal
+
+        // Reset form
         updateMatchModal.style.display = "none";
         matchSelect.value = "";
         winnerSelect.innerHTML = '<option value="">Select Winner</option>';
+        team1KillsInput.value = "";
+        team2KillsInput.value = "";
+        
+        // Reset team kill labels
+        document.getElementById('team1-label').textContent = 'Team Kills:';
+        document.getElementById('team2-label').textContent = 'Team Kills:';
     } else {
-        alert("Please select both match and winner!");
-    }
-};
-
-// Reset Tournament
-const resetTournament = async () => {
-    if (!isAdminLoggedIn) {
-        alert("Admin access required!");
-        return;
-    }
-
-    if (confirm('Are you sure you want to reset the tournament? This will clear all match results and points.')) {
-        try {
-            const response = await fetch(`${API_URL}/tournament/reset`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to reset tournament');
-            }
-
-            // Reset points table
-            teams.forEach(team => {
-                pointsTable[team.name] = {
-                    matchesPlayed: 0,
-                    wins: 0,
-                    draws: 0,
-                    losses: 0,
-                    points: 0,
-                    color: team.color
-                };
-            });
-
-            // Reset fixtures
-            const fixtureCards = document.querySelectorAll('.fixture-card');
-            fixtureCards.forEach(card => {
-                card.classList.remove('completed');
-            });
-
-            // Reset completed matches
-            completedMatches = [];
-
-            // Update UI
-            renderPointsTable();
-            renderFixtures();
-        } catch (error) {
-            console.error('Error resetting tournament:', error);
-            alert('Failed to reset tournament. Please try again.');
-        }
+        alert("Please select both match and winner");
     }
 };
 
