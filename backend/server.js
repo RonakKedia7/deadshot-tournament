@@ -7,7 +7,7 @@ const app = express();
 
 // Enhanced Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || '*',
+    origin: ['https://ronakkedia7.github.io', 'http://localhost:3000', 'http://localhost:5500'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
